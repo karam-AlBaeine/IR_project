@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yalla Search Chatbot</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .yalla-search-title {
+            font-family: 'Arial', sans-serif;
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .yalla-search-title span {
+            display: inline-block;
+        }
+        .yalla-search-title .y { color: #4285F4; }  /* Blue */
+        .yalla-search-title .a1 { color: #EA4335; } /* Red */
+        .yalla-search-title .l1 { color: #FBBC05; } /* Yellow */
+        .yalla-search-title .l2 { color: #34A853; } /* Green */
+        .yalla-search-title .a2 { color: #EA4335; } /* Red */
+        .yalla-search-title .s { color: #4285F4; }  /* Blue */
+        .yalla-search-title .e { color: #FBBC05; }  /* Yellow */
+        .yalla-search-title .r { color: #34A853; }  /* Green */
+        .yalla-search-title .c { color: #EA4335; }  /* Red */
+        .yalla-search-title .h { color: #4285F4; }  /* Blue */
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="yalla-search-title">
+                    <span class="y">Y</span>
+                    <span class="a1">a</span>
+                    <span class="l1">l</span>
+                    <span class="l2">l</span>
+                    <span class="a2">a</span>
+                    <span class="s"> </span>
+                    <span class="s">S</span>
+                    <span class="e">e</span>
+                    <span class="a2">a</span>
+                    <span class="r">r</span>
+                    <span class="c">c</span>
+                    <span class="h">h</span>
+                </h1>
+                <div class="form-group">
+                    <label for="dataset">Choose a dataset:</label>
+                    <select id="dataset" class="form-control">
+                        <option value="wiki">Wikipedia</option>
+                        <option value="antique">Antique</option>
+                    </select>
+                </div>
+                <div class="chat-box mt-3" id="chat-box" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
+                <div class="chat-input mt-3">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Type a message...">
+                    <button id="send-button" class="btn btn-primary mt-2">Send</button>
+                    <button id="search-toggle" class="btn btn-secondary mt-2">Switch to Traditional Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                $('#chat-box').append('<div><strong>Chatbot:</strong> Connected to Yalla Search chatbot!</div>');
+            });
+
+            socket.on('response', function(data) {
+                if(data.message) {
+                    $('#chat-box').append('<div><strong>Chatbot:</strong> ' + data.message + '</div>');
+                }
+                if(data.query && data.corrected_query) {
+                    $('#chat-box').append('<div><strong>User:</strong> ' + data.query + '</div>');
+                    if(data.results) {
+                        data.results.forEach(function(result) {
+                            $('#chat-box').append('<div>' + result.text_right + '</div>');
+                        });
+                    }
+                }
+                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);  // Scroll to bottom
+            });
+
+            $('#send-button').click(function() {
+                var message = $('#chat-input').val();
+                var dataset = $('#dataset').val();
+                $('#chat-box').append('<div><strong>User:</strong> ' + message + '</div>');
+                socket.emit('user_message', {'message': message, 'dataset': dataset});
+                $('#chat-input').val('');
+            });
+
+            $('#search-toggle').click(function(){
+                window.location.href = '/';
+            });
+        });
+    </script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yalla Search Chatbot</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .yalla-search-title {
+            font-family: 'Arial', sans-serif;
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .yalla-search-title span {
+            display: inline-block;
+        }
+        .yalla-search-title .y { color: #4285F4; }  /* Blue */
+        .yalla-search-title .a1 { color: #EA4335; } /* Red */
+        .yalla-search-title .l1 { color: #FBBC05; } /* Yellow */
+        .yalla-search-title .l2 { color: #34A853; } /* Green */
+        .yalla-search-title .a2 { color: #EA4335; } /* Red */
+        .yalla-search-title .s { color: #4285F4; }  /* Blue */
+        .yalla-search-title .e { color: #FBBC05; }  /* Yellow */
+        .yalla-search-title .r { color: #34A853; }  /* Green */
+        .yalla-search-title .c { color: #EA4335; }  /* Red */
+        .yalla-search-title .h { color: #4285F4; }  /* Blue */
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="yalla-search-title">
+                    <span class="y">Y</span>
+                    <span class="a1">a</span>
+                    <span class="l1">l</span>
+                    <span class="l2">l</span>
+                    <span class="a2">a</span>
+                    <span class="s"> </span>
+                    <span class="s">S</span>
+                    <span class="e">e</span>
+                    <span class="a2">a</span>
+                    <span class="r">r</span>
+                    <span class="c">c</span>
+                    <span class="h">h</span>
+                </h1>
+                <div class="form-group">
+                    <label for="dataset">Choose a dataset:</label>
+                    <select id="dataset" class="form-control">
+                        <option value="wiki">Wikipedia</option>
+                        <option value="antique">Antique</option>
+                    </select>
+                </div>
+                <div class="chat-box mt-3" id="chat-box" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
+                <div class="chat-input mt-3">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Type a message...">
+                    <button id="send-button" class="btn btn-primary mt-2">Send</button>
+                    <button id="search-toggle" class="btn btn-secondary mt-2">Switch to Traditional Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                $('#chat-box').append('<div><strong>Chatbot:</strong> Connected to Yalla Search chatbot!</div>');
+            });
+
+            socket.on('response', function(data) {
+                if(data.message) {
+                    $('#chat-box').append('<div><strong>Chatbot:</strong> ' + data.message + '</div>');
+                }
+                if(data.query && data.corrected_query) {
+                    $('#chat-box').append('<div><strong>User:</strong> ' + data.query + '</div>');
+                    if(data.results) {
+                        data.results.forEach(function(result) {
+                            $('#chat-box').append('<div>' + result.text_right + '</div>');
+                        });
+                    }
+                    if(data.topic_distribution) {
+                        $('#chat-box').append('<h3>Topic Distribution</h3>');
+                        data.topic_distribution.forEach(function(topic) {
+                            $('#chat-box').append('<div>Topic ' + topic[0] + ': ' + topic[1] + '</div>');
+                        });
+                    }
+                }
+                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);  // Scroll to bottom
+            });
+
+            $('#send-button').click(function() {
+                var message = $('#chat-input').val();
+                var dataset = $('#dataset').val();
+                $('#chat-box').append('<div><strong>User:</strong> ' + message + '</div>');
+                socket.emit('user_message', {'message': message, 'dataset': dataset});
+                $('#chat-input').val('');
+            });
+
+            $('#search-toggle').click(function(){
+                window.location.href = '/';
+            });
+        });
+    </script>
+</body>
+</html> -->
+
